@@ -1,0 +1,15 @@
+# Example script. Replace with your vendor's commands.
+# Variables available: {ATR_HEX}, {ATR_NS}, {TS}, {T0}, {K}, {HIST_HEX}, {HIST_NS}, {TCK}, {COMPUTED_TCK}, {PROTOCOLS}
+#
+# Common patterns:
+# - SELECT an applet or management AID
+# 00 A4 04 00 0B A0 00 00 00 62 03 01 0C 06 01 00
+# - Vendor-specific commands to set ATR/ATS would go here. Use variables, e.g.:
+# 80 DA 9F 01 {len(HIST_NS)//2:02X} {HIST_NS}
+# 80 DA 9F 02 {len(ATR_NS)//2:02X} {ATR_NS}
+# The above are examples only and will not work unless your card implements them.
+#
+# As a guaranteed no-op demo, echo the ATR bytes to an echo-capable applet (if installed).
+# 80 EE 00 00 <Lc> <ATR bytes>
+# Replace with your own commands; line below is commented out by default.
+# 80 EE 00 00 {len(ATR_NS)//2:02X} {ATR_NS}

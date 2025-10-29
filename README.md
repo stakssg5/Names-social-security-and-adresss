@@ -1,12 +1,18 @@
 ATR Utility
 
-A lightweight, cross-platform command‑line tool to work with smart‑card ATRs (Answer To Reset):
+A lightweight toolset to work with smart‑card ATRs (Answer To Reset). It includes a CLI and a simple desktop GUI that mirrors the screenshots you provided.
+
+CLI features:
 - Read ATRs from connected cards via PC/SC (optional, requires system PC/SC and pyscard)
 - Parse and validate ATR bytes
 - Build simple ATRs for testing/simulation workflows
 - Search a small built‑in database of known ATRs
 
-This repository contains only a CLI for now. A GUI can be added later if needed.
+GUI features:
+- Reader picker, READ ATR button, live ATR hex display
+- Parsed ATR details in a table
+- A "Customize ATR" panel with default/custom/known ATR pickers (for analysis/copy)
+- "Send to card" placeholder that explains vendor‑specific limitations
 
 Quick start
 
@@ -54,9 +60,48 @@ Read ATR from a card (requires pyscard + PC/SC):
 python3 -m atr_utility read --reader 0
 ```
 
+Run the GUI
+-----------
+
+```
+python3 -m atr_utility.gui
+```
+
+Program the card (Send to card)
+-------------------------------
+
+Changing a card's ATR is vendor‑specific. The GUI lets you load and run an APDU script and substitutes variables from the parsed/selected ATR so you can use the exact bytes your card requires.
+
+1) Click "Load..." and choose a `.apdu` text script.
+2) Pick the ATR (read one, select from DB, or enter custom).
+3) Click "SEND TO CARD" to execute the script against the selected reader.
+
+Script format: one APDU per line as hex bytes; `#` starts a comment. The following variables are expanded before sending:
+
+- `{ATR_HEX}`: full ATR with spaces (e.g., `3B 00`)
+- `{ATR_NS}`: ATR without spaces
+- `{TS}`, `{T0}`, `{K}`: single values
+- `{HIST_HEX}`, `{HIST_NS}`: historical bytes
+- `{TCK}`, `{COMPUTED_TCK}`: if present; empty otherwise
+- `{PROTOCOLS}`: space‑separated protocol values (e.g., `00 01`)
+
+A bundled example exists at `atr_utility/example_script.apdu` (no‑op by default). Replace it with your device/vendor commands.
+
+Build a Windows .exe (optional)
+-------------------------------
+
+On Windows, after installing Python and the dependencies:
+
+```
+pip install pyinstaller pyscard
+pyinstaller -F -w -n "Atr Zoe Utility" -i NONE -p . atr_utility/gui.py
+```
+
+The `dist/Atr Zoe Utility.exe` will contain the GUI. PyInstaller gathers the required Qt6 DLLs automatically.
+
 Notes and limitations
 
-- Customizing the ATR on a physical JavaCard/JCOP requires vendor-specific commands and is not standardized. This tool focuses on reading, parsing, and constructing ATR byte strings for analysis and testing.
+- Customizing the ATR on a physical JavaCard/JCOP requires vendor-specific commands and is not standardized. The GUI mirrors the workflow for analysis and copying ATRs, but "Send to card" is intentionally a no‑op unless you add vendor commands.
 - The ATR builder included here is intentionally simple (single interface group, optional TA1/TB1/TC1, protocol T=0 or T=1). It computes and appends TCK automatically when needed.
 
 Project layout
@@ -65,6 +110,7 @@ Project layout
 - `atr_utility/pcsc.py`: PC/SC reader helpers (optional)
 - `atr_utility/cli.py`: CLI entry points
 - `atr_utility/atr_db.py`: tiny database of example ATRs
+- `atr_utility/gui.py`: desktop GUI (PySide6)
 
 License
 
