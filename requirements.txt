@@ -1,3 +1,8 @@
 click==8.1.7
 rich==13.9.2
-# Optional: install pyscard if you have PC/SC libraries
+PySide6==6.7.3
+# Optional runtime dependencies (install if needed):
+# pyscard enables PC/SC smartcard access
+# pyinstaller can package into a Windows .exe
+# pyscard==2.0.7
+# pyinstaller==6.10.0

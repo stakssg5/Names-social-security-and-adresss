@@ -1,12 +1,18 @@
 ATR Utility
 
-A lightweight, cross-platform command‑line tool to work with smart‑card ATRs (Answer To Reset):
+A lightweight toolset to work with smart‑card ATRs (Answer To Reset). It includes a CLI and a simple desktop GUI that mirrors the screenshots you provided.
+
+CLI features:
 - Read ATRs from connected cards via PC/SC (optional, requires system PC/SC and pyscard)
 - Parse and validate ATR bytes
 - Build simple ATRs for testing/simulation workflows
 - Search a small built‑in database of known ATRs
 
-This repository contains only a CLI for now. A GUI can be added later if needed.
+GUI features:
+- Reader picker, READ ATR button, live ATR hex display
+- Parsed ATR details in a table
+- A "Customize ATR" panel with default/custom/known ATR pickers (for analysis/copy)
+- "Send to card" placeholder that explains vendor‑specific limitations
 
 Quick start
 
@@ -54,9 +60,28 @@ Read ATR from a card (requires pyscard + PC/SC):
 python3 -m atr_utility read --reader 0
 ```
 
+Run the GUI
+-----------
+
+```
+python3 -m atr_utility.gui
+```
+
+Build a Windows .exe (optional)
+-------------------------------
+
+On Windows, after installing Python and the dependencies:
+
+```
+pip install pyinstaller pyscard
+pyinstaller -F -w -n "ATR Studio" -i NONE -p . atr_utility/gui.py
+```
+
+The `dist/ATR Studio.exe` will contain the GUI. PyInstaller gathers the required Qt6 DLLs automatically.
+
 Notes and limitations
 
-- Customizing the ATR on a physical JavaCard/JCOP requires vendor-specific commands and is not standardized. This tool focuses on reading, parsing, and constructing ATR byte strings for analysis and testing.
+- Customizing the ATR on a physical JavaCard/JCOP requires vendor-specific commands and is not standardized. The GUI mirrors the workflow for analysis and copying ATRs, but "Send to card" is intentionally a no‑op unless you add vendor commands.
 - The ATR builder included here is intentionally simple (single interface group, optional TA1/TB1/TC1, protocol T=0 or T=1). It computes and appends TCK automatically when needed.
 
 Project layout
@@ -65,6 +90,7 @@ Project layout
 - `atr_utility/pcsc.py`: PC/SC reader helpers (optional)
 - `atr_utility/cli.py`: CLI entry points
 - `atr_utility/atr_db.py`: tiny database of example ATRs
+- `atr_utility/gui.py`: desktop GUI (PySide6)
 
 License
 
