@@ -94,10 +94,10 @@ On Windows, after installing Python and the dependencies:
 
 ```
 pip install pyinstaller pyscard
-pyinstaller -F -w -n "ATR Studio" -i NONE -p . atr_utility/gui.py
+pyinstaller -F -w -n "Atr Zoe Utility" -i NONE -p . atr_utility/gui.py
 ```
 
-The `dist/ATR Studio.exe` will contain the GUI. PyInstaller gathers the required Qt6 DLLs automatically.
+The `dist/Atr Zoe Utility.exe` will contain the GUI. PyInstaller gathers the required Qt6 DLLs automatically.
 
 Notes and limitations
 

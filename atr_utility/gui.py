@@ -35,7 +35,7 @@ from .apdu import parse_apdu_script, send_apdus
 class ATRStudioWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("ATR Studio")
+        self.setWindowTitle("Atr Zoe Utility")
         self.resize(980, 600)
 
         container = QWidget(self)
