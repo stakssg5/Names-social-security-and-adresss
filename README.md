@@ -67,6 +67,26 @@ Run the GUI
 python3 -m atr_utility.gui
 ```
 
+Program the card (Send to card)
+-------------------------------
+
+Changing a card's ATR is vendor‑specific. The GUI lets you load and run an APDU script and substitutes variables from the parsed/selected ATR so you can use the exact bytes your card requires.
+
+1) Click "Load..." and choose a `.apdu` text script.
+2) Pick the ATR (read one, select from DB, or enter custom).
+3) Click "SEND TO CARD" to execute the script against the selected reader.
+
+Script format: one APDU per line as hex bytes; `#` starts a comment. The following variables are expanded before sending:
+
+- `{ATR_HEX}`: full ATR with spaces (e.g., `3B 00`)
+- `{ATR_NS}`: ATR without spaces
+- `{TS}`, `{T0}`, `{K}`: single values
+- `{HIST_HEX}`, `{HIST_NS}`: historical bytes
+- `{TCK}`, `{COMPUTED_TCK}`: if present; empty otherwise
+- `{PROTOCOLS}`: space‑separated protocol values (e.g., `00 01`)
+
+A bundled example exists at `atr_utility/example_script.apdu` (no‑op by default). Replace it with your device/vendor commands.
+
 Build a Windows .exe (optional)
 -------------------------------
 

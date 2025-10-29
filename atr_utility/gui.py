@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QFileDialog,
     QMessageBox,
     QPushButton,
     QRadioButton,
@@ -28,6 +29,7 @@ from PySide6.QtWidgets import (
 from .atr import parse_atr, to_hex, build_simple_atr
 from .pcsc import list_readers, connect_and_get_atr
 from .atr_db import KNOWN_ATRS
+from .apdu import parse_apdu_script, send_apdus
 
 
 class ATRStudioWindow(QMainWindow):
@@ -120,6 +122,23 @@ class ATRStudioWindow(QMainWindow):
         custom_row.addWidget(self.custom_hex)
         v.addLayout(custom_row)
 
+        # Script loader
+        script_row = QHBoxLayout()
+        script_row.addWidget(QLabel("APDU Script"))
+        self.script_path = QLineEdit()
+        self.script_path.setPlaceholderText("Load a .apdu script to program the card")
+        load_btn = QPushButton("Load...")
+        load_btn.clicked.connect(self._load_script)
+        script_row.addWidget(self.script_path)
+        script_row.addWidget(load_btn)
+        v.addLayout(script_row)
+
+        self.script_preview = QTextEdit()
+        self.script_preview.setReadOnly(True)
+        self.script_preview.setPlaceholderText("Script preview")
+        self.script_preview.setFixedHeight(120)
+        v.addWidget(self.script_preview)
+
         # Controls
         control_row = QHBoxLayout()
         self.copy_btn = QPushButton("COPY ATR")
@@ -197,16 +216,59 @@ class ATRStudioWindow(QMainWindow):
         self.status.showMessage("ATR copied to clipboard", 3000)
 
     def _send_to_card(self) -> None:
-        # Real ATR customization is not standardized; show an explanation
-        QMessageBox.information(
-            self,
-            "Send to Card",
-            (
-                "Changing a card's ATR is vendor-specific and generally not supported.\n"
-                "This demo replicates the UI and allows reading/inspecting ATR bytes.\n"
-                "If your card vendor provides commands to set ATR, integrate them here."
-            ),
-        )
+        atr_hex = self._current_output_atr_hex()
+        if not atr_hex:
+            QMessageBox.warning(self, "Send to Card", "No ATR selected.")
+            return
+        try:
+            atr_bytes = bytes.fromhex(atr_hex.replace(" ", "").replace("-", ""))
+        except Exception:
+            QMessageBox.warning(self, "Send to Card", "Selected ATR is not valid hex.")
+            return
+
+        script_text = self.script_preview.toPlainText().strip()
+        if not script_text:
+            # Try to auto-load the bundled example
+            try:
+                from importlib.resources import files
+
+                example_path = files("atr_utility").joinpath("example_script.apdu")
+                script_text = example_path.read_text(encoding="utf-8")
+                self.script_path.setText(str(example_path))
+                self.script_preview.setPlainText(script_text)
+            except Exception:
+                QMessageBox.information(
+                    self,
+                    "Send to Card",
+                    "Load an APDU script first (see README for variables).",
+                )
+                return
+
+        try:
+            apdus = parse_apdu_script(script_text, atr_bytes)
+            if not apdus:
+                QMessageBox.information(self, "Send to Card", "Script contains no APDUs to send.")
+                return
+            reader_index = self.reader_combo.currentIndex()
+            results = send_apdus(reader_index, apdus)
+        except Exception as exc:
+            QMessageBox.critical(self, "Send to Card", f"Failed: {exc}")
+            return
+
+        # Summarize results
+        ok_count = sum(1 for r in results if (r.sw1, r.sw2) == (0x90, 0x00))
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Send to Card")
+        msg.setText(f"Sent {len(results)} APDUs, {ok_count} returned 90 00.")
+        details_lines = []
+        for r in results:
+            apdu_hex = r.apdu.hex(" ").upper()
+            data_hex = r.data.hex(" ").upper()
+            details_lines.append(f"> {apdu_hex}\n< {r.sw1:02X} {r.sw2:02X} {('['+data_hex+']') if data_hex else ''}\n")
+        msg.setDetailedText("\n".join(details_lines))
+        msg.exec()
+        self.status.showMessage("APDU script sent", 4000)
 
     def _current_output_atr_hex(self) -> Optional[str]:
         # Determine which ATR is selected in the right panel
@@ -230,6 +292,19 @@ class ATRStudioWindow(QMainWindow):
         if idx > 0:
             return self.db_select.currentData()  # type: ignore[return-value]
         return None
+
+    def _load_script(self) -> None:
+        file_path, _ = QFileDialog.getOpenFileName(self, "Load APDU Script", "", "APDU Scripts (*.apdu *.txt);;All Files (*)")
+        if not file_path:
+            return
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as exc:
+            QMessageBox.critical(self, "Load Script", f"Failed to read file: {exc}")
+            return
+        self.script_path.setText(file_path)
+        self.script_preview.setPlainText(content)
 
 
 def main() -> None:
