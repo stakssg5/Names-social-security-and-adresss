@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Cameras</h1>
+<p><a href="/admin">Admin home</a> · <a href="/admin/cameras/new">Add camera</a> · <a href="/admin/import">Bulk import</a></p>
+<table style="width:100%;border-collapse:collapse">
+  <thead>
+    <tr>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #1f2937">Agency</th>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #1f2937">Name</th>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #1f2937">Type</th>
+      <th style="text-align:left;padding:8px;border-bottom:1px solid #1f2937">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for c in cameras %}
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid #1f2937">{{ c.agency.name }}</td>
+      <td style="padding:8px;border-bottom:1px solid #1f2937"><a href="/cameras/{{ c.id }}">{{ c.name }}</a></td>
+      <td style="padding:8px;border-bottom:1px solid #1f2937">{{ c.stream_type|upper }}</td>
+      <td style="padding:8px;border-bottom:1px solid #1f2937">
+        <form method="post" action="/admin/cameras/{{ c.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this camera permanently? This cannot be undone.');">
+          <button type="submit" style="background:#7f1d1d;color:#fff;border:1px solid #991b1b;border-radius:6px;padding:6px 10px">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

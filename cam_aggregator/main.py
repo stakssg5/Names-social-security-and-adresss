@@ -19,6 +19,7 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
 FEEDS_DIR = BASE_DIR / "feeds"
 FEEDS_JSON = FEEDS_DIR / "public_feeds.json"
+STORAGE_DIR = BASE_DIR / "storage"
 
 app = FastAPI(title="Public Webcam Aggregator", version="0.1.0")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -392,3 +393,44 @@ async def admin_import_csv(
         created += 1
     db.commit()
     return {"created": created, "skipped": skipped}
+
+
+def _cleanup_orphan_tags(db: Session) -> int:
+    # Remove tags that are no longer linked to any camera
+    orphan_tags = (
+        db.query(Tag)
+        .outerjoin(Tag.cameras)
+        .filter(Camera.id == None)  # noqa: E711
+        .all()
+    )
+    count = 0
+    for t in orphan_tags:
+        db.delete(t)
+        count += 1
+    return count
+
+
+@app.get("/admin/cameras", response_class=HTMLResponse)
+def admin_list_cameras(request: Request, db: Session = Depends(get_db), _: None = Depends(require_admin)) -> HTMLResponse:
+    cams = db.query(Camera).join(Agency).order_by(Agency.name.asc(), Camera.name.asc()).all()
+    return templates.TemplateResponse("admin/cameras.html", {"request": request, "cameras": cams})
+
+
+@app.post("/admin/cameras/{camera_id}/delete")
+def admin_delete_camera(camera_id: int, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    import shutil
+    cam: Optional[Camera] = db.query(Camera).filter(Camera.id == camera_id).first()
+    if not cam:
+        raise HTTPException(status_code=404, detail="Camera not found")
+    # Remove any local storage for this camera if present
+    cam_dir = STORAGE_DIR / f"camera_{camera_id}"
+    try:
+        if cam_dir.exists():
+            shutil.rmtree(cam_dir, ignore_errors=True)
+    except Exception:
+        pass
+    db.delete(cam)
+    db.commit()
+    _cleanup_orphan_tags(db)
+    db.commit()
+    return RedirectResponse(url="/admin/cameras", status_code=303)
