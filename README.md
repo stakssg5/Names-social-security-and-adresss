@@ -35,7 +35,7 @@ CLI features:
 GUI features:
 - Reader picker, READ ATR button, live ATR hex display
 - Parsed ATR details in a table
-- A "Customize ATR" panel with default/custom/known ATR pickers (for analysis/copy)
+- A "Customize ATR" panel with Default/Custom/Known ATR pickers (for analysis/copy)
 - "Send to card" placeholder that explains vendor‑specific limitations
 
 Quick start

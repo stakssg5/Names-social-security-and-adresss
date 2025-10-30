@@ -104,6 +104,8 @@ class ATRStudioWindow(QMainWindow):
         self.db_select.addItem("Select ATR")
         for atr_hex, desc in KNOWN_ATRS.items():
             self.db_select.addItem(f"{desc}", atr_hex)
+        # When a known ATR is selected, switch the radio to Known ATR
+        self.db_select.currentIndexChanged.connect(self._on_db_select_changed)
         choose_row.addWidget(self.db_select)
         v.addLayout(choose_row)
 
@@ -111,8 +113,10 @@ class ATRStudioWindow(QMainWindow):
         self.default_radio = QRadioButton("Default ATR")
         self.default_radio.setChecked(True)
         self.custom_radio = QRadioButton("Custom ATR")
+        self.known_radio = QRadioButton("Known ATR")
         radio_row.addWidget(self.default_radio)
         radio_row.addWidget(self.custom_radio)
+        radio_row.addWidget(self.known_radio)
         v.addLayout(radio_row)
 
         custom_row = QHBoxLayout()
@@ -158,6 +162,10 @@ class ATRStudioWindow(QMainWindow):
         return g
 
     # ----- Actions -----
+    def _on_db_select_changed(self, idx: int) -> None:
+        if idx > 0:
+            self.known_radio.setChecked(True)
+
     def _refresh_readers(self) -> None:
         self.reader_combo.clear()
         readers = list_readers()
@@ -285,7 +293,6 @@ class ATRStudioWindow(QMainWindow):
         if self.default_radio.isChecked():
             text = self.atr_text.toPlainText().strip()
             return text or None
-        # Custom
         if self.custom_radio.isChecked():
             hex_text = self.custom_hex.text().strip()
             if hex_text:
@@ -297,7 +304,12 @@ class ATRStudioWindow(QMainWindow):
                     QMessageBox.warning(self, "Invalid hex", "Please enter a valid hex string.")
                     return None
                 return hex_text.upper()
-        # DB selection
+        if getattr(self, "known_radio", None) is not None and self.known_radio.isChecked():
+            idx = self.db_select.currentIndex()
+            if idx > 0:
+                return self.db_select.currentData()  # type: ignore[return-value]
+            return None
+        # If no radio chosen, fall back to known ATR if any
         idx = self.db_select.currentIndex()
         if idx > 0:
             return self.db_select.currentData()  # type: ignore[return-value]
