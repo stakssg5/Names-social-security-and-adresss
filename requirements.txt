@@ -1,6 +1,9 @@
 click==8.1.7
 rich==13.9.2
 PySide6==6.7.3
+# Crypto for wallet script
+ecdsa==0.19.0
+pycryptodome==3.21.0
 # Optional runtime dependencies (install if needed):
 # pyscard enables PC/SC smartcard access
 # pyinstaller can package into a Windows .exe
