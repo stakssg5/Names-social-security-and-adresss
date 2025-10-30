@@ -159,3 +159,32 @@ Project layout
 License
 
 MIT
+
+---
+
+Public Webcam Aggregator (Compliant, no scanning)
+-------------------------------------------------
+
+This repo also includes a small FastAPI app that indexes and displays officially public webcam feeds you provide. It does not scan networks or attempt to discover camera IPs. Only add feeds you have rights to index or that are clearly published for public viewing (e.g., open data portals, official government traffic cams with permissive terms).
+
+Run locally:
+
+1) Install dependencies:
+
+```
+pip3 install -r requirements.txt
+```
+
+2) Start the server:
+
+```
+python3 -m cam_aggregator
+```
+
+3) Open `http://localhost:8000` in your browser.
+
+Notes:
+- On first start, it seeds a few demo entries from `cam_aggregator/feeds/public_feeds.json`. Replace with your own list of officially public feeds. Fields: `agency`, `agency_slug`, `name`, `location`, `stream_url`, `stream_type` (hls|mjpeg|image|iframe).
+- The UI supports search across agency name, camera name, and location.
+- HLS playback uses client-side Hls.js when needed. MJPEG and image types render directly. `iframe` links embed the official page when allowed.
+- Do not add private or unauthorized feeds. No scanning or port probing is performed or supported.

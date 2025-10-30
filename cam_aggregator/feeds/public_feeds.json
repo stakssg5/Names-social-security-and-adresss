@@ -1,0 +1,26 @@
+[
+  {
+    "agency": "Sample DOT",
+    "agency_slug": "sample-dot",
+    "name": "Downtown Cam 1",
+    "location": "Main & 1st Ave",
+    "stream_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+    "stream_type": "hls"
+  },
+  {
+    "agency": "Sample Parks Department",
+    "agency_slug": "sample-parks",
+    "name": "City Park Overlook",
+    "location": "North Ridge",
+    "stream_url": "https://placehold.co/960x540?text=Demo+Snapshot",
+    "stream_type": "image"
+  },
+  {
+    "agency": "Sample Transit Authority",
+    "agency_slug": "sample-transit",
+    "name": "Terminal Lobby",
+    "location": "Concourse A",
+    "stream_url": "https://example.com/official-page",
+    "stream_type": "iframe"
+  }
+]

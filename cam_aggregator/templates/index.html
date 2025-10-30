@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>Find Public Webcams</h1>
+  <form id="search-form" onsubmit="return false;" class="search-form">
+    <input type="text" id="q" name="q" placeholder="Search by agency, city, or camera" autofocus />
+    <button type="button" onclick="runSearch()">Search</button>
+  </form>
+  <div id="results" class="results"></div>
+</section>
+<script>
+async function runSearch() {
+  const q = document.getElementById('q').value.trim();
+  const params = q ? `?q=${encodeURIComponent(q)}` : '';
+  const res = await fetch(`/api/cameras${params}`);
+  const data = await res.json();
+  const results = document.getElementById('results');
+  if (!Array.isArray(data) || data.length === 0) {
+    results.innerHTML = '<p>No cameras found.</p>';
+    return;
+  }
+  results.innerHTML = data.map(c => `
+    <a class="card" href="/cameras/${c.id}">
+      <div class="card-body">
+        <div class="card-title">${escapeHtml(c.name)}</div>
+        <div class="card-sub">${escapeHtml(c.agency.name)}${c.location ? ' — ' + escapeHtml(c.location) : ''}</div>
+        <div class="card-meta">Type: ${escapeHtml(c.stream_type.toUpperCase())}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Auto-run on load to show all
+runSearch();
+</script>
+{% endblock %}
