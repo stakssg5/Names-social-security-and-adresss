@@ -188,3 +188,35 @@ Notes:
 - The UI supports search across agency name, camera name, and location.
 - HLS playback uses client-side Hls.js when needed. MJPEG and image types render directly. `iframe` links embed the official page when allowed.
 - Do not add private or unauthorized feeds. No scanning or port probing is performed or supported.
+
+Admin and bulk import
+---------------------
+
+Enable admin with HTTP Basic by setting these environment variables before starting the server:
+
+```
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD=change-me-please
+python -m cam_aggregator
+```
+
+Then open `http://localhost:8000/admin`.
+
+- Add camera form: create cameras, create/select agencies, and add comma-separated tags.
+- Bulk import: upload CSV or JSON array at `http://localhost:8000/admin/import`.
+  - Expected columns/fields: `agency`, `agency_slug`, `name`, `location`, `stream_url`, `stream_type`, `tags` (comma separated or array).
+  - Import skips duplicates by `(name, agency)`.
+
+API filters and pagination
+-------------------------
+
+`GET /api/cameras` supports:
+- `q`: free-text
+- `agency`: agency slug
+- `tag`: tag name
+- `stream_type`: hls|mjpeg|image|iframe
+- `page` and `limit` (default 1, 50)
+
+Facets:
+- `GET /api/agencies` returns agencies with `camera_count`.
+- `GET /api/tags` returns tags with `camera_count`.

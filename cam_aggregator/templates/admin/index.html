@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Admin</h1>
+<p>Agencies: {{ agency_count }} · Cameras: {{ camera_count }} · Tags: {{ tag_count }}</p>
+<p><a href="/admin/cameras/new">Add camera</a></p>
+<p style="color:#94a3b8">Admin is protected by HTTP Basic using env vars: ADMIN_USERNAME/ADMIN_PASSWORD.</p>
+{% endblock %}

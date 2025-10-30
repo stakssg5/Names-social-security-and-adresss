@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Bulk Import</h1>
+<p>Upload CSV or JSON array of feeds. Fields: agency, agency_slug, name, location, stream_url, stream_type, tags.</p>
+
+<h2>CSV</h2>
+<form method="post" action="/admin/import/csv" enctype="multipart/form-data" style="margin-bottom:20px">
+  <input type="file" name="file" accept=".csv" required />
+  <button type="submit">Import CSV</button>
+</form>
+
+<h2>JSON</h2>
+<form method="post" action="/admin/import/json" enctype="multipart/form-data">
+  <input type="file" name="file" accept=".json,application/json" required />
+  <button type="submit">Import JSON</button>
+</form>
+{% endblock %}
