@@ -1,4 +1,10 @@
-ATR Utility
+ATR Studio
+
+## Overview
+Easily set, customize, or create ATR (Answer To Reset) for Java-based smart cards. ATR Studio supports multiple card readers and JCOP cards, offering a user-friendly interface for professionals working with smart card development and customization.
+
+- 4,000+ ATRs to choose from
+- Easy to use: modern, streamlined GUI
 
 ## Modern SmartCard ATR Suite
 Transparent, ISO 7816‑compliant smartcard initialization that just works.
@@ -7,6 +13,7 @@ Transparent, ISO 7816‑compliant smartcard initialization that just works.
 Enough with outdated tooling and opaque docs. We make smartcard tech easy, modern, and transparent.
 
 ### Key Capabilities
+- Quick ATR: Quickly change your smart card’s ATR in a flash
 - ATR (Answer‑To‑Reset) database (4,000+ entries): Instantly recognize and validate cards.
 - ISO 7816 compliant: Ensure smartcard reset/initialization meets industry standards.
 - Pre‑personalization initialization: Prepare cards reliably before any application load.
