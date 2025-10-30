@@ -1,5 +1,29 @@
 ATR Utility
 
+## Modern SmartCard ATR Suite
+Transparent, ISO 7816‑compliant smartcard initialization that just works.
+
+### Why
+Enough with outdated tooling and opaque docs. We make smartcard tech easy, modern, and transparent.
+
+### Key Capabilities
+- ATR (Answer‑To‑Reset) database (4,000+ entries): Instantly recognize and validate cards.
+- ISO 7816 compliant: Ensure smartcard reset/initialization meets industry standards.
+- Pre‑personalization initialization: Prepare cards reliably before any application load.
+- Compatibility checks: Confidently use with X2, Foundry, EMV, or other smartcard apps.
+- Easy to use: Clear flows and scripting for APDU operations.
+- Read & write with any smartcard reader: Works with common PC/SC devices.
+- Affordable price: Safe, trustworthy ATR initialization at a price you’ll love.
+
+### Compatible Smartcards
+- JavaCard — J2A040 (and similar JavaCard platforms)
+- Broad support for EMV and general smartcard applications
+
+### What You Get
+- Consistency: Industry‑standard initialization every time.
+- Confidence: Compatibility validation against 4,000+ ATRs.
+- Simplicity: Straightforward workflows, clear outputs, and modern tooling.
+
 A lightweight toolset to work with smart‑card ATRs (Answer To Reset). It includes a CLI and a simple desktop GUI that mirrors the screenshots you provided.
 
 CLI features:
@@ -11,7 +35,7 @@ CLI features:
 GUI features:
 - Reader picker, READ ATR button, live ATR hex display
 - Parsed ATR details in a table
-- A "Customize ATR" panel with default/custom/known ATR pickers (for analysis/copy)
+- A "Customize ATR" panel with Default/Custom/Known ATR pickers (for analysis/copy)
 - "Send to card" placeholder that explains vendor‑specific limitations
 
 Quick start
@@ -90,14 +114,34 @@ A bundled example exists at `atr_utility/example_script.apdu` (no‑op by defaul
 Build a Windows .exe (optional)
 -------------------------------
 
-On Windows, after installing Python and the dependencies:
+Option A — one‑command build (recommended)
+
+- CMD:
+```
+scripts\build_exe.bat
+```
+
+- PowerShell:
+```
+powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1
+```
+
+This installs PyInstaller (if needed) and produces `dist\Atr Zoe Utility.exe`. It also bundles `atr_utility\example_script.apdu` so the GUI can auto‑load the example script.
+
+Option B — manual command
 
 ```
-pip install pyinstaller pyscard
-pyinstaller -F -w -n "Atr Zoe Utility" -i NONE -p . atr_utility/gui.py
+pip install pyinstaller
+pyinstaller -F -w -n "Atr Zoe Utility" -i NONE ^
+  --hidden-import "PySide6.QtNetwork" ^
+  --collect-qt-plugins "tls,networkinformation" ^
+  --add-data "atr_utility\example_script.apdu;atr_utility" ^
+  -p . atr_utility\gui.py
 ```
 
-The `dist/Atr Zoe Utility.exe` will contain the GUI. PyInstaller gathers the required Qt6 DLLs automatically.
+Notes:
+- To enable PC/SC card reading on Windows, install your reader's PC/SC driver and `pip install pyscard`.
+- PyInstaller bundles required Qt6 DLLs automatically for PySide6. The command above explicitly includes QtNetwork and TLS plugins.
 
 Notes and limitations
 
