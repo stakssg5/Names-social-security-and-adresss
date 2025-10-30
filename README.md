@@ -1,5 +1,29 @@
 ATR Utility
 
+## Modern SmartCard ATR Suite
+Transparent, ISO 7816‑compliant smartcard initialization that just works.
+
+### Why
+Enough with outdated tooling and opaque docs. We make smartcard tech easy, modern, and transparent.
+
+### Key Capabilities
+- ATR (Answer‑To‑Reset) database (4,000+ entries): Instantly recognize and validate cards.
+- ISO 7816 compliant: Ensure smartcard reset/initialization meets industry standards.
+- Pre‑personalization initialization: Prepare cards reliably before any application load.
+- Compatibility checks: Confidently use with X2, Foundry, EMV, or other smartcard apps.
+- Easy to use: Clear flows and scripting for APDU operations.
+- Read & write with any smartcard reader: Works with common PC/SC devices.
+- Affordable price: Safe, trustworthy ATR initialization at a price you’ll love.
+
+### Compatible Smartcards
+- JavaCard — J2A040 (and similar JavaCard platforms)
+- Broad support for EMV and general smartcard applications
+
+### What You Get
+- Consistency: Industry‑standard initialization every time.
+- Confidence: Compatibility validation against 4,000+ ATRs.
+- Simplicity: Straightforward workflows, clear outputs, and modern tooling.
+
 A lightweight toolset to work with smart‑card ATRs (Answer To Reset). It includes a CLI and a simple desktop GUI that mirrors the screenshots you provided.
 
 CLI features:
