@@ -34,6 +34,11 @@ def _expand_variables(text: str, parsed: ATRParseResult) -> str:
     atr_ns = atr_hex.replace(" ", "")
     tck = "" if parsed.tck is None else f"{parsed.tck:02X}"
     computed_tck = "" if parsed.computed_tck is None else f"{parsed.computed_tck:02X}"
+
+    # Common lengths for Lc fields (hex, 2-digit, zero-padded)
+    hist_len = len(parsed.historical_bytes)
+    atr_len = len(parsed.raw)
+
     variables: Dict[str, str] = {
         "ATR_HEX": atr_hex,
         "ATR_NS": atr_ns,
@@ -42,6 +47,8 @@ def _expand_variables(text: str, parsed: ATRParseResult) -> str:
         "K": str(parsed.k),
         "HIST_HEX": hist_hex,
         "HIST_NS": hist_ns,
+        "HIST_LEN": f"{hist_len:02X}",  # byte length as 2-digit hex
+        "ATR_LEN": f"{atr_len:02X}",    # byte length as 2-digit hex
         "TCK": tck,
         "COMPUTED_TCK": computed_tck,
         "PROTOCOLS": " ".join([f"{p:02X}" for p in parsed.protocols]),
@@ -59,7 +66,9 @@ def parse_apdu_script(script_text: str, atr_for_vars: bytes | str) -> List[bytes
       - One command per line: hex bytes separated by spaces
       - Lines beginning with '#' are comments
       - Empty lines are skipped
-      - Variables like {ATR_HEX}, {HIST_NS}, {TS}, {T0}, {TCK} are expanded
+      - Variables are expanded before parsing. Available:
+        {ATR_HEX}, {ATR_NS}, {TS}, {T0}, {K}, {HIST_HEX}, {HIST_NS},
+        {HIST_LEN}, {ATR_LEN}, {TCK}, {COMPUTED_TCK}, {PROTOCOLS}
     """
     parsed = parse_atr(atr_for_vars)
     expanded = _expand_variables(script_text, parsed)
