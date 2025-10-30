@@ -19,12 +19,22 @@ from typing import Optional
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 WALLET_BRAIN_PATH = os.path.join(THIS_DIR, "wallet_brain.py")
+WALLET_NET_PATH = os.path.join(THIS_DIR, "wallet_net.py")
 
 
 def _load_wallet_brain():
     spec = importlib.util.spec_from_file_location("wallet_brain", WALLET_BRAIN_PATH)
     if spec is None or spec.loader is None:  # pragma: no cover
         raise RuntimeError("Failed to load wallet_brain module")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+    return mod
+
+
+def _load_wallet_net():
+    spec = importlib.util.spec_from_file_location("wallet_net", WALLET_NET_PATH)
+    if spec is None or spec.loader is None:  # pragma: no cover
+        raise RuntimeError("Failed to load wallet_net module")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)  # type: ignore[attr-defined]
     return mod
@@ -89,6 +99,19 @@ def handle_brain_wallet(wallet_brain_mod) -> None:
         wallet_brain_mod.keccak_256(eth_pub)[-20:]
     )
 
+    # Try to fetch live balances
+    btc_balance_line = None
+    eth_balance_line = None
+    try:
+        wallet_net = _load_wallet_net()
+        sats = wallet_net.fetch_btc_balance_sats(bech32_addr)
+        btc_balance_line = f"confirmed balance: {sats} sats"
+        wei = wallet_net.fetch_eth_balance_wei(eth_addr)
+        eth_balance_line = f"balance:         {wallet_net.format_eth_from_wei(wei)} ETH"
+    except Exception:
+        # Network optional; continue silently
+        pass
+
     # Output matches the style from wallet_brain.py
     print("\n[Bitcoin Wallet]")
     print(f"Bech32 address:  {bech32_addr}")
@@ -97,12 +120,16 @@ def handle_brain_wallet(wallet_brain_mod) -> None:
     print(f"public key:      {pub_c.hex()}")
     print(f"private key:     {priv_hex}")
     print(f"mnemonic:        {passphrase}")
+    if btc_balance_line:
+        print(btc_balance_line)
 
     print("\n[EVM/Ethereum Wallet]")
     print(f"address:         {eth_addr}")
     print(f"public key:      0x{eth_pub.hex()}")
     print(f"private key:     0x{priv_hex}")
     print(f"mnemonic:        {passphrase}")
+    if eth_balance_line:
+        print(eth_balance_line)
 
 
 def main() -> int:
