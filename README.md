@@ -132,12 +132,16 @@ Option B — manual command
 
 ```
 pip install pyinstaller
-pyinstaller -F -w -n "Atr Zoe Utility" -i NONE --add-data "atr_utility\example_script.apdu;atr_utility" -p . atr_utility\gui.py
+pyinstaller -F -w -n "Atr Zoe Utility" -i NONE ^
+  --hidden-import "PySide6.QtNetwork" ^
+  --collect-qt-plugins "tls,networkinformation" ^
+  --add-data "atr_utility\example_script.apdu;atr_utility" ^
+  -p . atr_utility\gui.py
 ```
 
 Notes:
 - To enable PC/SC card reading on Windows, install your reader's PC/SC driver and `pip install pyscard`.
-- PyInstaller bundles required Qt6 DLLs automatically for PySide6.
+- PyInstaller bundles required Qt6 DLLs automatically for PySide6. The command above explicitly includes QtNetwork and TLS plugins.
 
 Notes and limitations
 

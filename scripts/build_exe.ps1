@@ -18,7 +18,11 @@ if ($LASTEXITCODE -ne 0) { exit 1 }
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
 # Build GUI executable and include example_script.apdu in atr_utility package
-& pyinstaller -F -w -n "Atr Zoe Utility" -i NONE --add-data "atr_utility\example_script.apdu;atr_utility" -p . atr_utility\gui.py
+& pyinstaller -F -w -n "Atr Zoe Utility" -i NONE `
+  --hidden-import "PySide6.QtNetwork" `
+  --collect-qt-plugins "tls,networkinformation" `
+  --add-data "atr_utility\example_script.apdu;atr_utility" `
+  -p . atr_utility\gui.py
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
 Write-Host ""
