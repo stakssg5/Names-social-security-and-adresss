@@ -114,14 +114,30 @@ A bundled example exists at `atr_utility/example_script.apdu` (no‑op by defaul
 Build a Windows .exe (optional)
 -------------------------------
 
-On Windows, after installing Python and the dependencies:
+Option A — one‑command build (recommended)
+
+- CMD:
+```
+scripts\build_exe.bat
+```
+
+- PowerShell:
+```
+powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1
+```
+
+This installs PyInstaller (if needed) and produces `dist\Atr Zoe Utility.exe`. It also bundles `atr_utility\example_script.apdu` so the GUI can auto‑load the example script.
+
+Option B — manual command
 
 ```
-pip install pyinstaller pyscard
-pyinstaller -F -w -n "Atr Zoe Utility" -i NONE -p . atr_utility/gui.py
+pip install pyinstaller
+pyinstaller -F -w -n "Atr Zoe Utility" -i NONE --add-data "atr_utility\example_script.apdu;atr_utility" -p . atr_utility\gui.py
 ```
 
-The `dist/Atr Zoe Utility.exe` will contain the GUI. PyInstaller gathers the required Qt6 DLLs automatically.
+Notes:
+- To enable PC/SC card reading on Windows, install your reader's PC/SC driver and `pip install pyscard`.
+- PyInstaller bundles required Qt6 DLLs automatically for PySide6.
 
 Notes and limitations
 

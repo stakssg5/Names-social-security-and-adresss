@@ -234,15 +234,25 @@ class ATRStudioWindow(QMainWindow):
 
                 example_path = files("atr_utility").joinpath("example_script.apdu")
                 script_text = example_path.read_text(encoding="utf-8")
-                self.script_path.setText(str(example_path))
-                self.script_preview.setPlainText(script_text)
+                display_path = str(example_path)
             except Exception:
-                QMessageBox.information(
-                    self,
-                    "Send to Card",
-                    "Load an APDU script first (see README for variables).",
-                )
-                return
+                # Fallback for PyInstaller one-file/runtime
+                try:
+                    import os
+                    from pathlib import Path
+                    base_dir = getattr(sys, "_MEIPASS", Path(__file__).resolve().parent)  # type: ignore[attr-defined]
+                    fallback = Path(base_dir) / "atr_utility" / "example_script.apdu"
+                    script_text = fallback.read_text(encoding="utf-8")
+                    display_path = str(fallback)
+                except Exception:
+                    QMessageBox.information(
+                        self,
+                        "Send to Card",
+                        "Load an APDU script first (see README for variables).",
+                    )
+                    return
+            self.script_path.setText(display_path)
+            self.script_preview.setPlainText(script_text)
 
         try:
             apdus = parse_apdu_script(script_text, atr_bytes)
