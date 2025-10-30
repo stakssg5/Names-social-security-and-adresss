@@ -11,17 +11,103 @@
 
   <div class="player">
     {% if camera.stream_type == 'hls' %}
+      <div id="player-controls" style="margin: 0 0 8px 0; display:none">
+        <label style="margin-right:12px;">
+          Quality
+          <select id="qualitySelect">
+            <option value="-1">Auto</option>
+          </select>
+        </label>
+        <label style="margin-right:12px; display:none;" id="audioTrackLabel">
+          Audio
+          <select id="audioTrackSelect"></select>
+        </label>
+        <label style="margin-right:12px;">
+          <input type="checkbox" id="muteToggle" /> Mute
+        </label>
+      </div>
       <video id="video" controls playsinline style="width:100%;max-width:960px;height:auto;background:#000"></video>
       <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
       <script>
         const video = document.getElementById('video');
         const src = {{ camera.stream_url | tojson }};
+        const controls = document.getElementById('player-controls');
+        const qSel = document.getElementById('qualitySelect');
+        const aSel = document.getElementById('audioTrackSelect');
+        const aLabel = document.getElementById('audioTrackLabel');
+        const muteToggle = document.getElementById('muteToggle');
+
+        muteToggle.addEventListener('change', () => {
+          video.muted = !!muteToggle.checked;
+        });
+
+        function labelForLevel(level, index) {
+          const height = level.height || 0;
+          const bitrate = level.bitrate ? Math.round(level.bitrate / 1000) : null;
+          if (height && bitrate) return `${height}p (${bitrate} kbps)`;
+          if (height) return `${height}p`;
+          if (bitrate) return `${bitrate} kbps`;
+          return `Level ${index}`;
+        }
+
         if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          // Native HLS: use built-in controls; advanced selectors not available
           video.src = src;
-        } else if (Hls.isSupported()) {
+          controls.style.display = 'none';
+        } else if (window.Hls && Hls.isSupported()) {
+          controls.style.display = 'block';
           const hls = new Hls();
           hls.loadSource(src);
           hls.attachMedia(video);
+
+          // Populate quality levels once manifest parsed
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            // Reset options except Auto
+            for (let i = qSel.options.length - 1; i >= 1; i--) qSel.remove(i);
+            (hls.levels || []).forEach((lvl, idx) => {
+              const opt = document.createElement('option');
+              opt.value = String(idx);
+              opt.textContent = labelForLevel(lvl, idx);
+              qSel.appendChild(opt);
+            });
+            qSel.value = '-1';
+          });
+
+          qSel.addEventListener('change', () => {
+            const val = parseInt(qSel.value || '-1', 10);
+            // -1 means auto selection
+            hls.currentLevel = isNaN(val) ? -1 : val;
+          });
+
+          // Populate audio tracks if present
+          function refreshAudioTracks() {
+            const tracks = hls.audioTracks || [];
+            if (!tracks.length) {
+              aLabel.style.display = 'none';
+              return;
+            }
+            aLabel.style.display = '';
+            // Clear
+            while (aSel.firstChild) aSel.removeChild(aSel.firstChild);
+            tracks.forEach((t, i) => {
+              const opt = document.createElement('option');
+              const name = t.name || t.lang || `Track ${i + 1}`;
+              opt.value = String(i);
+              opt.textContent = name;
+              aSel.appendChild(opt);
+            });
+            aSel.value = String(hls.audioTrack || 0);
+          }
+
+          hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, refreshAudioTracks);
+          hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, () => {
+            aSel.value = String(hls.audioTrack || 0);
+          });
+
+          aSel.addEventListener('change', () => {
+            const idx = parseInt(aSel.value || '0', 10) || 0;
+            hls.audioTrack = idx;
+          });
         } else {
           document.querySelector('.player').innerHTML = '<p>Your browser does not support HLS playback.</p>';
         }
