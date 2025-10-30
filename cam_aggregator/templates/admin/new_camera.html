@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>New Camera</h1>
+<form method="post" action="/admin/cameras" class="search-form" style="flex-wrap:wrap;gap:12px">
+  <input required name="name" placeholder="Camera name" />
+  <input name="location" placeholder="Location (optional)" />
+  <input required name="stream_url" placeholder="Stream URL (m3u8, mjpeg, image, iframe)" />
+  <select name="stream_type" required>
+    <option value="hls">HLS</option>
+    <option value="mjpeg">MJPEG</option>
+    <option value="image">Image</option>
+    <option value="iframe">IFrame</option>
+  </select>
+
+  <fieldset style="border:1px solid #1f2937;border-radius:8px;padding:12px;min-width:300px">
+    <legend>Agency</legend>
+    <label>Existing agency:
+      <select name="existing_agency_slug">
+        <option value="">-- Select --</option>
+        {% for a in agencies %}
+          <option value="{{ a.slug }}">{{ a.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div style="color:#94a3b8;margin:6px 0">or</div>
+    <label>New agency name:
+      <input name="new_agency_name" placeholder="e.g., City DOT" />
+    </label>
+  </fieldset>
+
+  <input name="tags_csv" placeholder="Tags (comma-separated, e.g., traffic, downtown)" />
+
+  <button type="submit">Create</button>
+</form>
+{% endblock %}

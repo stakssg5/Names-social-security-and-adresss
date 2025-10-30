@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="camera">
+  <h1>{{ camera.name }}</h1>
+  <div class="sub">
+    <span class="agency">{{ agency.name }}</span>
+    {% if camera.location %}
+    <span> — {{ camera.location }}</span>
+    {% endif %}
+  </div>
+
+  <div class="player">
+    {% if camera.stream_type == 'hls' %}
+      <video id="video" controls playsinline style="width:100%;max-width:960px;height:auto;background:#000"></video>
+      <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+      <script>
+        const video = document.getElementById('video');
+        const src = {{ camera.stream_url | tojson }};
+        if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = src;
+        } else if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(src);
+          hls.attachMedia(video);
+        } else {
+          document.querySelector('.player').innerHTML = '<p>Your browser does not support HLS playback.</p>';
+        }
+      </script>
+    {% elif camera.stream_type == 'mjpeg' %}
+      <img src="{{ camera.stream_url }}" alt="{{ camera.name }}" style="width:100%;max-width:960px;height:auto;" />
+    {% elif camera.stream_type == 'image' %}
+      <img src="{{ camera.stream_url }}" alt="{{ camera.name }}" style="width:100%;max-width:960px;height:auto;" />
+    {% elif camera.stream_type == 'iframe' %}
+      <iframe src="{{ camera.stream_url }}" style="width:100%;max-width:960px;height:540px;border:1px solid #ddd;border-radius:8px;" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    {% else %}
+      <p>Unsupported stream type: {{ camera.stream_type }}</p>
+      <p><a href="{{ camera.stream_url }}" target="_blank" rel="noreferrer noopener">Open link</a></p>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}
