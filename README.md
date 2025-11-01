@@ -160,6 +160,41 @@ License
 
 MIT
 
+------------------------------------------------
+
+Crypto PR+ Mini App (Desktop Clone)
+-----------------------------------
+
+This repository also includes a PySide6 desktop recreation of the Crypto PR+ Telegram mini app UI. The clone mirrors the layout, palette, and interactions from the reference screenshots: start/stop toggles, rolling wallet counter, rotating search-result cards, and the profits card state.
+
+Run locally (PySide6 is already declared in `requirements.txt`):
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m crypto_pr_plus
+```
+
+Build a Windows `.exe` (PyInstaller one-file, windowed):
+
+```
+scripts\build_exe.bat
+```
+
+or, from PowerShell:
+
+```
+powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1
+```
+
+Both scripts now emit two executables under `dist/`:
+
+- `Atr Zoe Utility.exe` (smartcard GUI)
+- `Crypto PR+.exe` (Crypto PR+ desktop clone)
+
+If you only need the Crypto PR+ binary, copy the second file from the `dist/` directory. PyInstaller is installed automatically by the build scripts; no additional configuration is required.
+
 ---
 
 Public Webcam Aggregator (Compliant, no scanning)
