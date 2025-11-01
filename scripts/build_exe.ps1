@@ -17,7 +17,7 @@ if ($LASTEXITCODE -ne 0) { exit 1 }
 & $Python -m pip install pyinstaller
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
-# Build GUI executable and include example_script.apdu in atr_utility package
+# Build ATR Utility GUI executable and include example_script.apdu in atr_utility package
 & pyinstaller -F -w -n "Atr Zoe Utility" -i NONE `
   --hidden-import "PySide6.QtNetwork" `
   --collect-qt-plugins "tls,networkinformation" `
@@ -25,6 +25,10 @@ if ($LASTEXITCODE -ne 0) { exit 1 }
   -p . atr_utility\gui.py
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
+# Build Crypto PR+ GUI executable (Telegram mini app clone)
+& pyinstaller -F -w -n "Crypto PR+" -i NONE -p . crypto_pr_plus\gui.py
+if ($LASTEXITCODE -ne 0) { exit 1 }
+
 Write-Host ""
-Write-Host "Build complete. See dist\Atr Zoe Utility.exe"
-Write-Host "If it fails to start, ensure your PC/SC driver is installed and pyscard is available."
+Write-Host "Build complete. See dist\Atr Zoe Utility.exe and dist\Crypto PR+.exe"
+Write-Host "If the ATR build fails to start, ensure your PC/SC driver is installed and pyscard is available."
